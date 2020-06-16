@@ -19,7 +19,7 @@ export default {
   setup() {
     const warMap = reactive({
       init: {},
-      markers: {},
+      markers: new Array(),
       default: { lat: 37.5642135, lng: 127.0016985 }
     });
 
@@ -56,8 +56,9 @@ export default {
     // );
 
     function drawMarkers(rdata, index) {
-      console.log(rdata);
-      warMap.markers = new window.google.maps.Marker({
+      console.log(index);
+
+      warMap.markers[index] = new window.google.maps.Marker({
         id: index,
         position: new window.google.maps.LatLng(
           rdata.pos.split(",")[0],
@@ -71,10 +72,12 @@ export default {
             ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
             : "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
       });
-      warMap.markers.addListener("click", function() {
-        console.log(warMap.markers.id);
+
+      warMap.markers[index].addListener("click", function() {
+        console.log(this.id);
       });
     }
+    function whereIsWar(where) {}
 
     /*
       function geoCoder(addr_data,index) {
