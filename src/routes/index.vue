@@ -65,19 +65,33 @@ export default {
           rdata.pos.split(",")[1]
         ),
         map: warMap.init,
-        icon:
-          rdata.where == "is_naval_warfare"
-            ? "http://maps.google.com/mapfiles/ms/icons/ltblue-dot.png"
-            : rdata.where == "is_air_war"
-            ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-            : "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+        icon: whereIsWar(rdata.where),
+
+        data: rdata
+      });
+      var infoWindow = new window.google.maps.InfoWindow({
+        content: warMap.markers[index].data.title
       });
 
       warMap.markers[index].addListener("click", function() {
+        this.map.setZoom(10);
+        this.map.setCenter(this.getPosition());
         console.log(this.id);
       });
+      warMap.markers[index].addListener("mouseover", function() {
+        infoWindow.open(this.map, this);
+      });
+      warMap.markers[index].addListener("mouseout", function() {
+        infoWindow.close();
+      });
     }
-    function whereIsWar(where) {}
+    function whereIsWar(where) {
+      return where == "is_naval_warfare"
+        ? "http://maps.google.com/mapfiles/ms/icons/ltblue-dot.png"
+        : where == "is_air_war"
+        ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+        : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+    }
 
     /*
       function geoCoder(addr_data,index) {
@@ -101,8 +115,13 @@ export default {
       .then(j => {
         return j.map(data => {
           var rdata = {};
+          rdata.date = data.addtn_itm_2;
+          rdata.location = data.addtn_itm_10;
+          rdata.cmmndr = data.addtn_itm_4;
           rdata.pos = data.addtn_itm_6;
           rdata.where = data.addtn_itm_5;
+          rdata.info = data.ctnt;
+          rdata.title = data.title;
           return rdata;
         });
       })
