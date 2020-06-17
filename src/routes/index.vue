@@ -1,7 +1,11 @@
 
 
 <template>
-  <div>
+  <div ref="main" id="main">
+    <div ref="myCanv" id="myCanv" class="Canv">
+      <span id="title"></span>
+    </div>
+    <a @click="navi" id="closebtn">&times;</a>
     <div id="map" style="width:100%; height: 500px"></div>
     <!-- ul v-for="d in map.data">
       <li v-for="d in map.data">
@@ -10,19 +14,70 @@
     </ul-->
   </div>
 </template>
+<style type='text/css'>
+.Canv {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: aqua;
+  overflow-x: hidden;
+  padding-top: 60px;
+  transition: 0.5s;
+}
+.Canv span {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 16pt;
+  color: red;
+  display: block;
+  transition: 0.3s;
+}
 
+#closebtn {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  font-size: 36px;
+  z-index: 1;
+  width: 20px;
+  height: 48px;
+  cursor: pointer;
+  transition: margin-left 0.5s;
+  background-color: grey;
+}
+#main {
+  transition: margin-left 0.5s;
+  padding: 20px;
+}
+</style>
 <script>
 import { reactive } from "@vue/composition-api";
 const api = "https://korean-war-alpha.firebaseio.com/DATA.json";
 
 export default {
+  methods: {
+    navi: function() {
+      if (document.getElementById("myCanv").classList.contains("open")) {
+        document.getElementById("closebtn").style.marginLeft = "0";
+        document.getElementById("myCanv").style.width = "0";
+        document.getElementById("main").style.marginLeft = "0";
+        document.getElementById("myCanv").classList.remove("open");
+      } else {
+        document.getElementById("closebtn").style.marginLeft = "250px";
+        document.getElementById("myCanv").style.width = "250px";
+        document.getElementById("main").style.marginLeft = "250px";
+        document.getElementById("myCanv").classList.add("open");
+      }
+    }
+  },
   setup() {
     const warMap = reactive({
       init: {},
       markers: new Array(),
       default: { lat: 37.5642135, lng: 127.0016985 }
     });
-
     function initMap() {
       warMap.init = new window.google.maps.Map(document.getElementById("map"), {
         center: warMap.default,
@@ -76,7 +131,15 @@ export default {
       warMap.markers[index].addListener("click", function() {
         this.map.setZoom(10);
         this.map.setCenter(this.getPosition());
+        document.getElementById("closebtn").style.marginLeft = "250px";
+        document.getElementById("myCanv").style.width = "250px";
+        document.getElementById("main").style.marginLeft = "250px";
+        document.getElementById("myCanv").classList.add("open");
+        // this.$methods.Nav();
         console.log(this.id);
+      });
+      warMap.markers[index].addListener("focusout", function() {
+        this.closeNav();
       });
       warMap.markers[index].addListener("mouseover", function() {
         infoWindow.open(this.map, this);
