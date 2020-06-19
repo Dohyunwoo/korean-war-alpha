@@ -24,7 +24,7 @@ export default {
         zoom: 8
       });
     }
-    window.koreanwar = initMap;
+    window.korea_map = initMap;
     function navi() {
       if (document.getElementById("myCanv").classList.contains("open")) {
         document.getElementById("closebtn").style.marginLeft = "0";
@@ -74,10 +74,10 @@ export default {
     }
     function whereIsWar(where) {
       return where == "is_naval_warfare"
-        ? "http://maps.google.com/mapfiles/ms/icons/ltblue-dot.png"
+        ? "https://maps.google.com/mapfiles/ms/icons/ltblue-dot.png"
         : where == "is_air_war"
-        ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-        : "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+        ? "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+        : "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
     }
     fetch(api)
       .then(res => {
