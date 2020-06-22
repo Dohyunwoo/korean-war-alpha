@@ -28,17 +28,8 @@ export default {
     const warMap = reactive({
       init: {},
       markers: [],
-      default: { lat: 37.5642135, lng: 127.0016985 },
-      rdata: [],
       mapData: {}
     });
-    function initMap() {
-      warMap.init = new window.google.maps.Map(document.getElementById("map"), {
-        center: warMap.default,
-        zoom: 8
-      });
-    }
-    window.korea_map = initMap;
     function drawMarkers(rdata, index) {
       warMap.markers[index] = new window.google.maps.Marker({
         id: index,
@@ -91,6 +82,8 @@ export default {
         });
       })
       .then(ds => {
+        warMap.init = window.warMap;
+        window.warMap = {};
         ds.map((rdata, index) => {
           drawMarkers(rdata, index);
         });
