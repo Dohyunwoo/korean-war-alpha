@@ -30,6 +30,13 @@ export default {
       markers: [],
       mapData: {}
     });
+    function initMap() {
+      warMap.init = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 37.5642135, lng: 127.0016985 },
+        zoom: 7,
+        disableDefaultUI: true
+      });
+    }
     function drawMarkers(rdata, index) {
       warMap.markers[index] = new window.google.maps.Marker({
         id: index,
@@ -69,6 +76,7 @@ export default {
         return res.json();
       })
       .then(j => {
+        initMap();
         return j.map(data => {
           const {
             addtn_itm_2: date,
@@ -82,8 +90,6 @@ export default {
         });
       })
       .then(ds => {
-        warMap.init = window.warMap;
-        window.warMap = {};
         ds.map((rdata, index) => {
           drawMarkers(rdata, index);
         });
