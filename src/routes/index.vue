@@ -1,14 +1,26 @@
 <template>
-  <div class="uk-container uk-container-small" ref="main" id="main">
-    <div ref="myCanv" id="myCanv" class="Canv">
-      <span id="title"></span>
-    </div>
-    <a @click="navi" id="closebtn">&times;</a>
+  <div class="uk-container uk-container-small">
     <div id="map" style="width:100%; height: 500px"></div>
+    <div id="offcanvas-map" uk-offcanvas="mode: reveal">
+      <div class="uk-offcanvas-bar">
+        <button class="uk-offcanvas-close" type="button" uk-close></button>
+        <h2>타이틀</h2>
+        <p>{{ warMap.mapData.title }}</p>
+        <h2>날  짜</h2>
+        <p>{{ warMap.mapData.date }}</p>
+        <h2>격전지</h2>
+        <p>{{ warMap.mapData.location }}</p>
+        <h2>사령관</h2>
+        <p>{{ warMap.mapData.cmmndr }}</p>
+        <h2>상세 설명</h2>
+        <p v-html="warMap.mapData.info"></p>
+      </div>
+    </div>
   </div>
 </template>
 <script>
 import { reactive } from "@vue/composition-api";
+import UIkit from "uikit";
 const api = "https://korean-war-alpha.firebaseio.com/DATA.json";
 
 export default {
@@ -16,7 +28,9 @@ export default {
     const warMap = reactive({
       init: {},
       markers: [],
-      default: { lat: 37.5642135, lng: 127.0016985 }
+      default: { lat: 37.5642135, lng: 127.0016985 },
+      rdata: [],
+      mapData: {}
     });
     function initMap() {
       warMap.init = new window.google.maps.Map(document.getElementById("map"), {
@@ -25,19 +39,6 @@ export default {
       });
     }
     window.korea_map = initMap;
-    function navi() {
-      if (document.getElementById("myCanv").classList.contains("open")) {
-        document.getElementById("closebtn").style.marginLeft = "0";
-        document.getElementById("myCanv").style.width = "0";
-        document.getElementById("main").style.marginLeft = "0";
-        document.getElementById("myCanv").classList.remove("open");
-      } else {
-        document.getElementById("closebtn").style.marginLeft = "250px";
-        document.getElementById("myCanv").style.width = "250px";
-        document.getElementById("main").style.marginLeft = "250px";
-        document.getElementById("myCanv").classList.add("open");
-      }
-    }
     function drawMarkers(rdata, index) {
       warMap.markers[index] = new window.google.maps.Marker({
         id: index,
@@ -55,15 +56,8 @@ export default {
       });
 
       warMap.markers[index].addListener("click", function() {
-        this.map.setZoom(10);
-        this.map.setCenter(this.getPosition());
-        document.getElementById("closebtn").style.marginLeft = "250px";
-        document.getElementById("myCanv").style.width = "250px";
-        document.getElementById("main").style.marginLeft = "250px";
-        document.getElementById("myCanv").classList.add("open");
-      });
-      warMap.markers[index].addListener("focusout", function() {
-        this.closeNav();
+        warMap.mapData = rdata;
+        UIkit.offcanvas('#offcanvas-map').show();
       });
       warMap.markers[index].addListener("mouseover", function() {
         infoWindow.open(this.map, this);
@@ -85,15 +79,15 @@ export default {
       })
       .then(j => {
         return j.map(data => {
-          const rdata = {};
-          rdata.date = data.addtn_itm_2;
-          rdata.location = data.addtn_itm_10;
-          rdata.cmmndr = data.addtn_itm_4;
-          rdata.pos = data.addtn_itm_6;
-          rdata.where = data.addtn_itm_5;
-          rdata.info = data.ctnt;
-          rdata.title = data.title;
-          return rdata;
+          const {
+            addtn_itm_2: date,
+            addtn_itm_10: location,
+            addtn_itm_4: cmmndr,
+            addtn_itm_6: pos,
+            addtn_itm_5: where,
+            ctnt:info, title
+          } = data;
+          return { date, location, cmmndr, pos, where, info, title } 
         });
       })
       .then(ds => {
@@ -101,45 +95,7 @@ export default {
           drawMarkers(rdata, index);
         });
       });
-    return { navi }
+    return { warMap }
   }
 };
 </script>
-<style type='text/css'>
-.Canv {
-  height: 100%;
-  width: 0;
-  position: fixed;
-  top: 0;
-  left: 0;
-  background-color: aqua;
-  overflow-x: hidden;
-  padding-top: 60px;
-  transition: 0.5s;
-}
-.Canv span {
-  padding: 8px 8px 8px 32px;
-  text-decoration: none;
-  font-size: 16pt;
-  color: red;
-  display: block;
-  transition: 0.3s;
-}
-
-#closebtn {
-  position: absolute;
-  top: 20px;
-  left: 0;
-  font-size: 36px;
-  z-index: 1;
-  width: 20px;
-  height: 48px;
-  cursor: pointer;
-  transition: margin-left 0.5s;
-  background-color: grey;
-}
-#main {
-  transition: margin-left 0.5s;
-  padding: 20px;
-}
-</style>
