@@ -1,5 +1,19 @@
 <template>
   <div class="uk-container uk-container-small">
+    <div class="uk-flex uk-margin-top uk-margin-bottom">
+      <div>
+        <span class="uk-label uk-label-danger">지상전</span> :
+        <img data-src="https://maps.google.com/mapfiles/ms/icons/red-dot.png" width="25" height="25" alt="지상전 이미지" uk-img>
+      </div>
+      <div class="uk-margin-left">
+        <span class="uk-label">공중전</span> :
+        <img data-src="https://maps.google.com/mapfiles/ms/icons/blue-dot.png" width="25" height="25" alt="공중전 이미지" uk-img>
+      </div>
+      <div class="uk-margin-left">
+        <span class="uk-label uk-label-success">해상전</span> :
+        <img data-src="https://maps.google.com/mapfiles/ms/icons/green-dot.png" width="25" height="25" alt="해상전 이미지" uk-img>
+      </div>
+    </div>
     <div id="map" style="width:100%; height: 500px"></div>
     <div id="offcanvas-map" uk-offcanvas="mode: reveal">
       <div class="uk-offcanvas-bar">
@@ -22,6 +36,7 @@
 import { reactive } from "@vue/composition-api";
 import UIkit from "uikit";
 const api = "https://korean-war-alpha.firebaseio.com/DATA.json";
+const api_un = "https://korean-war-alpha-un.firebaseio.com/UN.json";
 
 export default {
   setup() {
@@ -66,7 +81,7 @@ export default {
     }
     function whereIsWar(where) {
       return where == "is_naval_warfare"
-        ? "https://maps.google.com/mapfiles/ms/icons/ltblue-dot.png"
+        ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
         : where == "is_air_war"
         ? "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
         : "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
@@ -80,7 +95,7 @@ export default {
         return j.map(data => {
           const {
             addtn_itm_2: date,
-            addtn_itm_10: location,
+            addtn_itm_3: location,
             addtn_itm_4: cmmndr,
             addtn_itm_6: pos,
             addtn_itm_5: where,
