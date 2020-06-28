@@ -3,15 +3,33 @@
     <div class="uk-flex uk-margin-top uk-margin-bottom">
       <div>
         <span class="uk-label uk-label-danger">지상전</span> :
-        <img data-src="https://maps.google.com/mapfiles/ms/icons/red-dot.png" width="25" height="25" alt="지상전 이미지" uk-img>
+        <img
+          data-src="https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+          width="25"
+          height="25"
+          alt="지상전 이미지"
+          uk-img
+        />
       </div>
       <div class="uk-margin-left">
         <span class="uk-label">공중전</span> :
-        <img data-src="https://maps.google.com/mapfiles/ms/icons/blue-dot.png" width="25" height="25" alt="공중전 이미지" uk-img>
+        <img
+          data-src="https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+          width="25"
+          height="25"
+          alt="공중전 이미지"
+          uk-img
+        />
       </div>
       <div class="uk-margin-left">
         <span class="uk-label uk-label-success">해상전</span> :
-        <img data-src="https://maps.google.com/mapfiles/ms/icons/green-dot.png" width="25" height="25" alt="해상전 이미지" uk-img>
+        <img
+          data-src="https://maps.google.com/mapfiles/ms/icons/green-dot.png"
+          width="25"
+          height="25"
+          alt="해상전 이미지"
+          uk-img
+        />
       </div>
     </div>
     <div id="map" style="width:100%; height: 500px"></div>
@@ -20,12 +38,12 @@
         <button class="uk-offcanvas-close" type="button" uk-close></button>
         <h2>타이틀</h2>
         <p>{{ warMap.mapData.title }}</p>
-        <h2>날  짜</h2>
+        <h2>날 짜</h2>
         <p>{{ warMap.mapData.date }}</p>
         <h2>격전지</h2>
         <p>{{ warMap.mapData.location }}</p>
         <h2>사령관</h2>
-        <p>{{ warMap.mapData.cmmndr }}</p>
+        <p @mouseover="doMouseOver">{{ warMap.mapData.cmmndr }}</p>
         <h2>상세 설명</h2>
         <p v-html="warMap.mapData.info"></p>
       </div>
@@ -70,7 +88,8 @@ export default {
 
       warMap.markers[index].addListener("click", function() {
         warMap.mapData = rdata;
-        UIkit.offcanvas('#offcanvas-map').show();
+        alert(warMap.mapData.cmmndr);
+        UIkit.offcanvas("#offcanvas-map").show();
       });
       warMap.markers[index].addListener("mouseover", function() {
         infoWindow.open(this.map, this);
@@ -79,6 +98,14 @@ export default {
         infoWindow.close();
       });
     }
+
+    // this.$refs.cmmd.addListener("mouseover", function() {
+    //   console.log(this.value);
+    // });
+
+    // document.getElementById("cmmd").onmouseover() = function() {
+    //   alert(this.values);
+    // };
     function whereIsWar(where) {
       return where == "is_naval_warfare"
         ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
@@ -99,9 +126,10 @@ export default {
             addtn_itm_4: cmmndr,
             addtn_itm_6: pos,
             addtn_itm_5: where,
-            ctnt:info, title
+            ctnt: info,
+            title
           } = data;
-          return { date, location, cmmndr, pos, where, info, title } 
+          return { date, location, cmmndr, pos, where, info, title };
         });
       })
       .then(ds => {
@@ -109,7 +137,38 @@ export default {
           drawMarkers(rdata, index);
         });
       });
-    return { warMap }
+
+    fetch(api_un) //외국군
+      .then(res => {
+        return res.json();
+      })
+      .then(j => {
+        console.log(j);
+        // initMap();
+        // return j.map(data => {
+        //   const {
+        //     addtn_itm_2: date,
+        //     addtn_itm_3: location,
+        //     addtn_itm_4: cmmndr,
+        //     addtn_itm_6: pos,
+        //     addtn_itm_5: where,
+        //     ctnt:info, title
+        //   } = data;
+        //   return { date, location, cmmndr, pos, where, info, title }
+        // });
+      })
+      .then(ds => {
+        // ds.map((rdata, index) => {
+        //   drawMarkers(rdata, index);
+        // });
+      });
+
+    return { warMap };
+  },
+  methods: {
+    doMouseOver: function() {
+      return;
+    }
   }
 };
 </script>
