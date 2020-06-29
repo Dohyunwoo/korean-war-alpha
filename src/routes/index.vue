@@ -43,7 +43,10 @@
         <h2>격전지</h2>
         <p>{{ warMap.mapData.location }}</p>
         <h2>사령관</h2>
-        <p @mouseover="doMouseOver">{{ warMap.mapData.cmmndr }}</p>
+        <ul id="ulCmmd">
+          <!-- <li v-bind:key="cmmd" v-for="cmmdr in cmmd">{{ cmmdr }}</li> -->
+        </ul>
+        <!-- <p ></p> -->
         <h2>상세 설명</h2>
         <p v-html="warMap.mapData.info"></p>
       </div>
@@ -55,13 +58,15 @@ import { reactive } from "@vue/composition-api";
 import UIkit from "uikit";
 const api = "https://korean-war-alpha.firebaseio.com/DATA.json";
 const api_un = "https://korean-war-alpha-un.firebaseio.com/UN.json";
+const hogukapi = "https://korean-war-alpha-cdr.firebaseio.com/DATA.json";
 
 export default {
   setup() {
     const warMap = reactive({
       init: {},
       markers: [],
-      mapData: {}
+      mapData: {},
+      hugukData: []
     });
     function initMap() {
       warMap.init = new google.maps.Map(document.getElementById("map"), {
@@ -87,8 +92,43 @@ export default {
       });
 
       warMap.markers[index].addListener("click", function() {
+        var str = rdata.cmmndr.split(",");
+        // rdata.cmmndr = str;
+        // this.cmmd = str;
+        var ptag = document.getElementById("ulCmmd");
+        while (ptag.hasChildNodes()) {
+          ptag.removeChild(ptag.firstChild);
+        }
+        for (var i = 0; i < str.length; i++) {
+          document.getElementById("ulCmmd").style.listStyle = "none";
+          var litag = document.createElement("li");
+
+          var atag = document.createElement("a");
+          atag.onclick = function() {
+            var imsi = this.innerText.split(" ");
+
+            var index = warMap.hugukData.findIndex(function(item) {
+              return item.who.split(" ")[0] === imsi[0];
+            });
+
+            // console.log(index);
+            if (index != -1) {
+              console.log(
+                "호국선열 대상 " + JSON.stringify(warMap.hugukData[index])
+              );
+            } else {
+              console.log("호국선열 대상 아님");
+            }
+          };
+          var text = document.createTextNode(str[i]);
+
+          atag.appendChild(text);
+          litag.appendChild(atag);
+          document.getElementById("ulCmmd").appendChild(litag);
+        }
+        // console.log(this.cmmd[0]);
         warMap.mapData = rdata;
-        alert(warMap.mapData.cmmndr);
+
         UIkit.offcanvas("#offcanvas-map").show();
       });
       warMap.markers[index].addListener("mouseover", function() {
@@ -163,10 +203,36 @@ export default {
         // });
       });
 
+    fetch(hogukapi) //외국군
+      .then(res => {
+        return res.json();
+      })
+      .then(j => {
+        // console.log(j);
+        // initMap();
+        return j.map(data => {
+          const {
+            title: who, //사람
+            addtn_itm_7: rank_nm, //계급
+            addtn_itm_8: dcrtn, //훈장
+            addtn_itm_6: where, //태어난곳
+            ctnt: ctnt
+          } = data;
+          return { who, rank_nm, dcrtn, where, ctnt };
+        });
+      })
+      .then(ds => {
+        warMap.hugukData = ds;
+        // console.log(ds);
+        // ds.map((rdata, index) => {
+        //   this.huguk[index] = rdata;
+        // });
+      });
+
     return { warMap };
   },
   methods: {
-    doMouseOver: function() {
+    doClick: function() {
       return;
     }
   }
