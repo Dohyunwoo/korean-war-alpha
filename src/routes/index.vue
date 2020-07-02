@@ -33,6 +33,20 @@
       </div>
     </div>
     <div id="map" style="width:100%; height: 500px"></div>
+    <div
+      id="dataview"
+      style="margin-top:20px;position:relative;width:100%; height: 500px;display:none"
+    >
+      <h2>지휘관 성명</h2>
+      <div>
+        <p id="cmmdNM" style="display:inline;"></p>
+        <img id="rank_img" style="display:inline;" />
+      </div>
+      <h2>훈장</h2>
+      <p id="dcrtn"></p>
+      <h2>내용</h2>
+      <p id="ctnt"></p>
+    </div>
     <div id="offcanvas-map" uk-offcanvas="mode: reveal">
       <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close" type="button" uk-close></button>
@@ -56,6 +70,7 @@
 <script>
 import { reactive } from "@vue/composition-api";
 import UIkit from "uikit";
+
 const api = "https://korean-war-alpha.firebaseio.com/DATA.json";
 const api_un = "https://korean-war-alpha-un.firebaseio.com/UN.json";
 const hogukapi = "https://korean-war-alpha-cdr.firebaseio.com/DATA.json";
@@ -92,6 +107,7 @@ export default {
       });
 
       warMap.markers[index].addListener("click", function() {
+        document.getElementById("dataview").style.display = "none";
         var str = rdata.cmmndr.split(",");
         // rdata.cmmndr = str;
         // this.cmmd = str;
@@ -113,10 +129,30 @@ export default {
 
             // console.log(index);
             if (index != -1) {
+              document.getElementById("cmmdNM").innerText =
+                warMap.hugukData[index].who;
+
+              // document
+              //   .getElementById("rank_img")
+              //   .setAttribute(
+              //     "src",
+              //     img_url + "/" + warMap.hugukData[index].rank_nm + ".gif"
+              //   ); //계급이미지
+              document.getElementById("dcrtn").innerText =
+                warMap.hugukData[index].dcrtn;
+              document.getElementById("ctnt").innerHTML =
+                warMap.hugukData[index].ctnt;
+              document.getElementById("dataview").style.display =
+                "inline-block";
               console.log(
                 "호국선열 대상 " + JSON.stringify(warMap.hugukData[index])
               );
             } else {
+              document.getElementById("cmmdNM").innerText = "";
+              document.getElementById("dcrtn").innerText = "";
+              document.getElementById("ctnt").innerHTML = "";
+              document.getElementById("dataview").style.display = "none";
+              alert("호국선열 대상자가 아닙니다.");
               console.log("호국선열 대상 아님");
             }
           };
@@ -143,9 +179,6 @@ export default {
     //   console.log(this.value);
     // });
 
-    // document.getElementById("cmmd").onmouseover() = function() {
-    //   alert(this.values);
-    // };
     function whereIsWar(where) {
       return where == "is_naval_warfare"
         ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
