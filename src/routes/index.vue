@@ -3,19 +3,48 @@
     <div class="uk-flex uk-margin-top uk-margin-bottom">
       <div>
         <span class="uk-label uk-label-danger">지상전</span> :
-        <img data-src="https://maps.google.com/mapfiles/ms/icons/red-dot.png" width="25" height="25" alt="지상전 이미지" uk-img>
+        <img data-src="https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+          width="15" height="15" alt="지상전 이미지" uk-img v-if="warMap.isMobile">
+        <img data-src="https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+          width="25" height="25" alt="지상전 이미지" uk-img v-else>
       </div>
       <div class="uk-margin-left">
         <span class="uk-label">공중전</span> :
-        <img data-src="https://maps.google.com/mapfiles/ms/icons/blue-dot.png" width="25" height="25" alt="공중전 이미지" uk-img>
+        <img data-src="https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+          width="15" height="15" alt="지상전 이미지" uk-img v-if="warMap.isMobile">
+        <img data-src="https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+          width="25" height="25" alt="지상전 이미지" uk-img v-else>
       </div>
       <div class="uk-margin-left">
         <span class="uk-label uk-label-success">해상전</span> :
-        <img data-src="https://maps.google.com/mapfiles/ms/icons/green-dot.png" width="25" height="25" alt="해상전 이미지" uk-img>
+        <img data-src="https://maps.google.com/mapfiles/ms/icons/green-dot.png"
+          width="15" height="15" alt="지상전 이미지" uk-img v-if="warMap.isMobile">
+        <img data-src="https://maps.google.com/mapfiles/ms/icons/green-dot.png"
+          width="25" height="25" alt="지상전 이미지" uk-img v-else>
       </div>
     </div>
-    <div id="map" style="width:100%; height: 500px"></div>
-    <div id="offcanvas-map" uk-offcanvas="mode: reveal">
+    <div class="uk-margin">
+      <label class="uk-form-label" for="form-stacked-select">전투 시작일</label>
+      <div class="uk-form-controls">
+        <select class="uk-select" v-model="warMap.monthSelected" @change="monthChange">
+          <option>---전체---</option>
+          <option>1950년 6월</option>
+          <option>1950년 7월</option>
+          <option>1950년 8월</option>
+          <option>1950년 9월</option>
+          <option>1950년 10월</option>
+          <option>1950년 11월</option>
+          <option>1950년 12월</option>
+          <option>1951년 1월</option>
+          <option>1951년 2월</option>
+        </select>
+      </div>
+    </div>
+    <div id="map" style="width:100%; height: 450px"></div>
+    <div>
+      <span class="uk-text-bold uk-badge">총 접전지 : {{warMap.count}}</span>
+    </div>
+    <div id="offcanvas-map" uk-offcanvas="mode: reveal" v-if="!warMap.isMobile">
       <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close" type="button" uk-close></button>
         <h2>타이틀</h2>
@@ -30,6 +59,23 @@
         <p v-html="warMap.mapData.info"></p>
       </div>
     </div>
+    <div v-if="warMap.openList" class="uk-card uk-card-body uk-margin-top-large">
+      <h2 id="warinfo">전투 정보</h2>
+      <dl class="uk-description-list">
+        <dt><button class="uk-button uk-button-text" uk-scroll>지도로 돌아가기</button></dt>
+        <dt>타이틀</dt>
+        <dd>{{ warMap.mapData.title }}</dd>
+        <dt>날  짜</dt>
+        <dd>{{ warMap.mapData.date }}</dd>
+        <dt>격전지</dt>
+        <dd>{{ warMap.mapData.location }}</dd>
+        <dt>사령관</dt>
+        <dd>{{ warMap.mapData.cmmndr }}</dd>
+        <dt>상세 설명</dt>
+        <dd v-html="warMap.mapData.info"></dd>
+        <dt><button class="uk-button uk-button-text" uk-scroll>지도로 돌아가기</button></dt>
+      </dl>
+    </div>
   </div>
 </template>
 <script>
@@ -43,7 +89,13 @@ export default {
     const warMap = reactive({
       init: {},
       markers: [],
-      mapData: {}
+      mapData: {},
+      daySelectItem: [],
+      isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+      openList: false,
+      monthSelected: "---전체---",
+      mapData: [],
+      count: 0
     });
     function initMap() {
       warMap.init = new google.maps.Map(document.getElementById("map"), {
@@ -63,6 +115,9 @@ export default {
         icon: whereIsWar(rdata.where),
         data: rdata
       });
+
+      warMap.count++;
+
       var infoWindow = new window.google.maps.InfoWindow({
         content: `<p>전투명: ${warMap.markers[index].data.title}</p>
                   <p>날짜: ${warMap.markers[index].data.date}</p>`
@@ -70,7 +125,13 @@ export default {
 
       warMap.markers[index].addListener("click", function() {
         warMap.mapData = rdata;
-        UIkit.offcanvas('#offcanvas-map').show();
+        if(warMap.isMobile) {
+          warMap.openList = true;
+          window.scrollTo({top:600, behavior:'smooth'})
+        } else {
+          UIkit.offcanvas('#offcanvas-map').show();
+          warMap.openList = false;
+        } 
       });
       warMap.markers[index].addListener("mouseover", function() {
         infoWindow.open(this.map, this);
@@ -86,6 +147,21 @@ export default {
         ? "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
         : "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
     }
+    function monthChange() {
+      initMap();
+      warMap.count = 0;
+      if(warMap.monthSelected === "---전체---") {
+        warMap.mapData.map((d,index) => {
+          drawMarkers(d, index)
+        })
+      } else {
+        warMap.mapData.map((d,index) => {
+          if(warMap.monthSelected === d.ym) {
+            drawMarkers(d, index)
+          }
+        })
+      }
+    }
     fetch(api)
       .then(res => {
         return res.json();
@@ -93,6 +169,8 @@ export default {
       .then(j => {
         initMap();
         return j.map(data => {
+          const dateSplit = data.addtn_itm_2.split('-');
+          let ym = dateSplit[0].split('.')[0] +'년 '+ dateSplit[0].split('.')[1] + '월';
           const {
             addtn_itm_2: date,
             addtn_itm_3: location,
@@ -101,7 +179,8 @@ export default {
             addtn_itm_5: where,
             ctnt:info, title
           } = data;
-          return { date, location, cmmndr, pos, where, info, title } 
+          warMap.mapData.push({ date, location, cmmndr, pos, where, info, title, ym })
+          return { date, location, cmmndr, pos, where, info, title, ym } 
         });
       })
       .then(ds => {
@@ -109,7 +188,7 @@ export default {
           drawMarkers(rdata, index);
         });
       });
-    return { warMap }
+    return { warMap, monthChange }
   }
 };
 </script>
