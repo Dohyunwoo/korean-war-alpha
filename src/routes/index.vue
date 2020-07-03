@@ -24,7 +24,7 @@
       </div>
     </div>
     <div class="uk-margin">
-      <label class="uk-form-label" for="form-stacked-select">전투 시작일</label>
+      <label class="uk-form-label" for="form-stacked-select">전투 시작 월</label>
       <div class="uk-form-controls">
         <select class="uk-select" v-model="warMap.monthSelected" @change="monthChange">
           <option>---전체---</option>
@@ -94,7 +94,7 @@ export default {
       isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
       openList: false,
       monthSelected: "---전체---",
-      mapData: [],
+      mapDataList: [],
       count: 0
     });
     function initMap() {
@@ -151,11 +151,11 @@ export default {
       initMap();
       warMap.count = 0;
       if(warMap.monthSelected === "---전체---") {
-        warMap.mapData.map((d,index) => {
+        warMap.mapDataList.map((d,index) => {
           drawMarkers(d, index)
         })
       } else {
-        warMap.mapData.map((d,index) => {
+        warMap.mapDataList.map((d,index) => {
           if(warMap.monthSelected === d.ym) {
             drawMarkers(d, index)
           }
@@ -179,7 +179,7 @@ export default {
             addtn_itm_5: where,
             ctnt:info, title
           } = data;
-          warMap.mapData.push({ date, location, cmmndr, pos, where, info, title, ym })
+          warMap.mapDataList.push({ date, location, cmmndr, pos, where, info, title, ym })
           return { date, location, cmmndr, pos, where, info, title, ym } 
         });
       })
