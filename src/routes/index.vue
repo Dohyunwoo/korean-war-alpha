@@ -38,12 +38,32 @@
       style="margin-top:20px;position:relative;width:100%; height: 500px;display:none"
     >
       <h2>지휘관 성명</h2>
-      <div>
-        <p id="cmmdNM" style="display:inline;"></p>
-        <img id="rank_img" style="display:inline;" />
+      <div style="height:100px;">
+        <table border="1">
+          <tr>
+            <th>당시계급</th>
+            <th>현계급</th>
+          </tr>
+          <tr style="text-align:center">
+            <td>
+              <img id="prank_img" />
+            </td>
+            <td>
+              <img id="crank_img" />
+            </td>
+          </tr>
+          <tr style="text-align:center">
+            <td>
+              <p id="pcmmdNM" style="display:inline;"></p>
+            </td>
+            <td>
+              <p id="ccmmdNM" style="display:inline;"></p>
+            </td>
+          </tr>
+        </table>
       </div>
       <h2>훈장</h2>
-      <p id="dcrtn"></p>
+      <div id="dcrtn"></div>
       <h2>내용</h2>
       <p id="ctnt"></p>
     </div>
@@ -57,10 +77,8 @@
         <h2>격전지</h2>
         <p>{{ warMap.mapData.location }}</p>
         <h2>사령관</h2>
-        <ul id="ulCmmd">
-          <!-- <li v-bind:key="cmmd" v-for="cmmdr in cmmd">{{ cmmdr }}</li> -->
-        </ul>
-        <!-- <p ></p> -->
+        <ul id="ulCmmd"></ul>
+
         <h2>상세 설명</h2>
         <p v-html="warMap.mapData.info"></p>
       </div>
@@ -127,19 +145,65 @@ export default {
               return item.who.split(" ")[0] === imsi[0];
             });
 
-            // console.log(index);
             if (index != -1) {
-              document.getElementById("cmmdNM").innerText =
+              clearHuguk();
+              document.getElementById("pcmmdNM").innerText = this.innerText;
+              document.getElementById("ccmmdNM").innerText =
                 warMap.hugukData[index].who;
 
-              // document
-              //   .getElementById("rank_img")
-              //   .setAttribute(
-              //     "src",
-              //     img_url + "/" + warMap.hugukData[index].rank_nm + ".gif"
-              //   ); //계급이미지
-              document.getElementById("dcrtn").innerText =
-                warMap.hugukData[index].dcrtn;
+              var prankNM = this.innerText.split(" ");
+              var prank;
+              if (prankNM.length > 2) {
+                prank = this.innerText.split(" ")[2];
+              } else {
+                prank = this.innerText.split(" ")[1];
+              }
+              document
+                .getElementById("prank_img")
+                .setAttribute("src", "/images/rank/" + prank + ".gif");
+              document
+                .getElementById("crank_img")
+                .setAttribute(
+                  "src",
+                  "/images/rank/" +
+                    warMap.hugukData[index].rank_nm.split(" ")[1] +
+                    ".gif"
+                );
+              var dcrtns = warMap.hugukData[index].dcrtn.split(", ");
+
+              if (dcrtns.length > 1) {
+                for (var i = 0; i < dcrtns.length; i++) {
+                  var newimg = document.createElement("img");
+                  newimg.setAttribute(
+                    "src",
+                    "/images/honor/" + dcrtns[i] + ".png"
+                  );
+                  newimg.style.maxHeight = "100px";
+                  newimg.style.maxWidth = "200px";
+                  document.getElementById("dcrtn").appendChild(newimg);
+                  var newps = document.createElement("p");
+
+                  newps.innerText = dcrtns[i];
+
+                  document.getElementById("dcrtn").appendChild(newps);
+                }
+              } else {
+                var Objimg = new Image();
+                Objimg.onload = function() {
+                  var newimg = document.createElement("img");
+                  newimg.setAttribute(
+                    "src",
+                    "/images/honor/" + dcrtns + ".png"
+                  );
+                  document.getElementById("dcrtn").appendChild(newimg);
+                };
+                Objimg.src = "/images/honor/" + dcrtns + ".png";
+                var newp = document.createElement("p");
+
+                newp.innerText = dcrtns;
+
+                document.getElementById("dcrtn").appendChild(newp);
+              }
               document.getElementById("ctnt").innerHTML =
                 warMap.hugukData[index].ctnt;
               document.getElementById("dataview").style.display =
@@ -148,10 +212,7 @@ export default {
                 "호국선열 대상 " + JSON.stringify(warMap.hugukData[index])
               );
             } else {
-              document.getElementById("cmmdNM").innerText = "";
-              document.getElementById("dcrtn").innerText = "";
-              document.getElementById("ctnt").innerHTML = "";
-              document.getElementById("dataview").style.display = "none";
+              clearHuguk();
               alert("호국선열 대상자가 아닙니다.");
               console.log("호국선열 대상 아님");
             }
@@ -175,10 +236,20 @@ export default {
       });
     }
 
-    // this.$refs.cmmd.addListener("mouseover", function() {
-    //   console.log(this.value);
-    // });
+    function clearHuguk() {
+      document.getElementById("pcmmdNM").innerText = "";
+      document.getElementById("ccmmdNM").innerText = "";
+      var cell = document.getElementById("dcrtn");
 
+      while (cell.firstChild) {
+        cell.removeChild(cell.firstChild);
+      }
+      document.getElementById("prank_img").setAttribute("src", "");
+      document.getElementById("crank_img").setAttribute("src", "");
+
+      document.getElementById("ctnt").innerHTML = "";
+      document.getElementById("dataview").style.display = "none";
+    }
     function whereIsWar(where) {
       return where == "is_naval_warfare"
         ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
