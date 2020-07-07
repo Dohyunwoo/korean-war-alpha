@@ -1,5 +1,15 @@
 <template>
   <div class="uk-container uk-container-small">
+    <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky; bottom: #transparent-sticky-navbar">
+      <nav class="uk-navbar-container uk-margin" uk-navbar>
+        <router-link to="/" class="uk-navbar-item uk-logo"><img src="/logo.jpg" width="80px" height="80px"></router-link>
+        <ul class="uk-navbar-nav">
+          <li><router-link to="/">지도 보기</router-link></li>
+          <li><router-link to="/patriotic">호국 선열</router-link></li>
+          <li><router-link to="/un">UN 참전국</router-link></li>
+        </ul>
+      </nav>
+    </div>
     <div class="uk-flex uk-margin-top uk-margin-bottom">
       <div>
         <span class="uk-label uk-label-danger">지상전</span> :
@@ -83,18 +93,20 @@ import { reactive } from "@vue/composition-api";
 import UIkit from "uikit";
 const api = "https://korean-war-alpha.firebaseio.com/DATA.json";
 const api_un = "https://korean-war-alpha-un.firebaseio.com/UN.json";
+const api_patriotic = "https://korean-war-alpha-cdr.firebaseio.com/DATA.json";
 
 export default {
   setup() {
+    const once = false;
     const warMap = reactive({
       init: {},
       markers: [],
       mapData: {},
-      daySelectItem: [],
       isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
       openList: false,
       monthSelected: "---전체---",
       mapDataList: [],
+      patricList: [],
       count: 0
     });
     function initMap() {
@@ -125,6 +137,7 @@ export default {
 
       warMap.markers[index].addListener("click", function() {
         warMap.mapData = rdata;
+        if(!once) { fetchPatriotic(); !!once; }
         if(warMap.isMobile) {
           warMap.openList = true;
           window.scrollTo({top:600, behavior:'smooth'})
@@ -150,6 +163,7 @@ export default {
     function monthChange() {
       initMap();
       warMap.count = 0;
+      warMap.openList = false;
       if(warMap.monthSelected === "---전체---") {
         warMap.mapDataList.map((d,index) => {
           drawMarkers(d, index)
@@ -187,7 +201,26 @@ export default {
         ds.map((rdata, index) => {
           drawMarkers(rdata, index);
         });
+        warMap.mapLoading = true;
       });
+    function fetchPatriotic() {
+      fetch(api_patriotic).then(res => res.json())
+        .then(j => {
+          return j.map((data, index) => {
+            const {
+              addtn_itm_5: career,
+              addtn_itm_6: native,
+              addtn_itm_7: rank,
+              addtn_itm_8: medal,
+              ctnt: detail,
+              title
+            } = data;
+            return { career, native, rank, medal, detail, title }
+          })
+        }).then(ds => {
+          warMap.patricList = ds
+        })
+    }
     return { warMap, monthChange }
   }
 };
