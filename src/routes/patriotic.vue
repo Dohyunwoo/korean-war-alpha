@@ -34,6 +34,39 @@
       <li><span>{{ pageNumber + 1 }} / {{ patriotic.pageCount }}</span></li>
       <li><a @click="nextPage">다음 <span uk-pagination-next></span></a></li>
     </ul>
+    <h1 class="uk-heading-divider">훈장 사진</h1>
+    <div class="uk-child-width-1-2@s uk-grid-match" uk-grid>
+      <div>
+        <div class="uk-card uk-card-hover uk-card-body">
+          <h3 class="uk-card-title">태극무공훈장</h3>
+          <img src="/images/honor/태극무공훈장.png"alt="미국 은성훈장">
+        </div>
+      </div>
+      <div>
+        <div class="uk-card uk-card-hover uk-card-body">
+          <h3 class="uk-card-title">을지무공훈장</h3>
+          <img src="/images/honor/을지무공훈장.png"alt="을지무공훈장">
+        </div>
+      </div>
+      <div>
+        <div class="uk-card uk-card-hover uk-card-body">
+          <h3 class="uk-card-title">충무무공훈장</h3>
+          <img src="/images/honor/충무무공훈장.png"alt="충무무공훈장">
+        </div>
+      </div>
+      <div>
+        <div class="uk-card uk-card-hover uk-card-body">
+          <h3 class="uk-card-title">화랑무공훈장</h3>
+          <img src="/images/honor/화랑무공훈장.png"alt="화랑무공훈장">
+        </div>
+      </div>
+      <div>
+        <div class="uk-card uk-card-hover uk-card-body">
+          <h3 class="uk-card-title">보국통일장</h3>
+          <img src="/images/honor/보국통일장.png" alt="보국통일장">
+        </div>
+      </div>
+    </div>
     <div id="modal-example" uk-modal>
       <div class="uk-modal-dialog uk-modal-body">
         <h2 class="uk-modal-title">상세 설명</h2>
