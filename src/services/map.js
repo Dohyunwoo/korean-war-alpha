@@ -2,8 +2,9 @@ import Vue from 'vue'
 import VueCompositionApi, { reactive } from '@vue/composition-api'
 import UIkit from "uikit";
 import IsMobile from "@/services/mobile-check"
-
 Vue.use(VueCompositionApi)
+
+const api = "https://korean-war-alpha.firebaseio.com/DATA.json";
 
 const warMap = reactive({
   init: {},
@@ -73,7 +74,7 @@ const warMap = reactive({
     warMap.count = 0;
     warMap.openList = false;
     if(warMap.monthSelected === "---전체---") {
-      warWap.mapDataList.map((d,index) => {
+      warMap.mapDataList.map((d,index) => {
         warMap.drawMarkers(d, index)
       })
     } else {
@@ -83,7 +84,28 @@ const warMap = reactive({
         }
       })
     }
+  },
+  fetchData() {
+    fetch(api)
+      .then(res => {
+        return res.json();
+    }).then(j => {
+      return j.map(data => {
+        const ym = warMap.yearMonth(data);
+        const {
+          addtn_itm_2: date,
+          addtn_itm_3: location,
+          addtn_itm_4: cmmndr,
+          addtn_itm_6: pos,
+          addtn_itm_5: where,
+          ctnt, title
+        } = data;
+        warMap.mapDataList.push({ date, location, cmmndr, pos, where, ctnt, title, ym })
+      });
+    });
   }
 });
+
+warMap.fetchData();
 
 export default warMap
