@@ -31,6 +31,5 @@ export default {
     warMap.mapDataList.map((rdata, index) => {
       warMap.drawMarkers(rdata, index);
     });
-  }
-};
+  }}
 </script>

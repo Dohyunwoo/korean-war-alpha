@@ -90,6 +90,7 @@ const warMap = reactive({
       .then(res => {
         return res.json();
     }).then(j => {
+      warMap.initMap();
       return j.map(data => {
         const ym = warMap.yearMonth(data);
         const {
@@ -101,6 +102,10 @@ const warMap = reactive({
           ctnt, title
         } = data;
         warMap.mapDataList.push({ date, location, cmmndr, pos, where, ctnt, title, ym })
+      });
+    }).then(() => {
+      warMap.mapDataList.map((rdata, index) => {
+        warMap.drawMarkers(rdata, index);
       });
     });
   }
